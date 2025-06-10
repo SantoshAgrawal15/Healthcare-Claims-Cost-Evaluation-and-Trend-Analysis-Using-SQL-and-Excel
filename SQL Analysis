@@ -1,0 +1,95 @@
+SQL COMMANDS :
+
+ 1.)SELECT + WHERE (Filtering)
+sql
+Copy
+Edit
+SELECT *
+FROM Claims
+WHERE Location = 'Mumbai' AND Claim_Cost > 20000;
+
+ 2.) GROUP BY + Aggregates (Total Cost by Procedure)
+sql
+Copy
+Edit
+SELECT Procedure_Name, SUM(Claim_Cost) AS Total_Cost
+FROM Claims
+GROUP BY Procedure_Name
+ORDER BY Total_Cost DESC;
+
+ 3.) ORDER BY + LIMIT (Top 5 Providers by Cost)
+sql
+Copy
+Edit
+SELECT Provider_Name, SUM(Claim_Cost) AS Total_Cost
+FROM Claims
+GROUP BY Provider_Name
+ORDER BY Total_Cost DESC
+LIMIT 5;
+
+4.) Functions + DATE (Monthly Trends)
+sql
+Copy
+Edit
+SELECT SUBSTR(Claim_Date, 1, 7) AS Month, COUNT(*) AS Claim_Count, SUM(Claim_Cost) AS Total_Cost
+FROM Claims
+GROUP BY Month
+ORDER BY Month;
+
+ 5.) HAVING (Filter groups — only procedures with > ₹5L cost)
+sql
+Copy
+Edit
+SELECT Procedure_Name, SUM(Claim_Cost) AS Total_Cost
+FROM Claims
+GROUP BY Procedure_Name
+HAVING Total_Cost > 500000;
+
+6.) JOIN (If you had a second table)
+Example: Let’s assume another table Providers (Provider_ID, City, Type)
+
+sql
+Copy
+Edit
+SELECT c.Procedure_Name, p.City, SUM(c.Claim_Cost) AS Total_Cost
+FROM Claims c
+JOIN Providers p ON c.Provider_ID = p.Provider_ID
+GROUP BY c.Procedure_Name, p.City;
+
+7.) Subquery (Get only claims above average cost)
+sql
+Copy
+Edit
+SELECT *
+FROM Claims
+WHERE Claim_Cost > (
+    SELECT AVG(Claim_Cost) FROM Claims
+);
+
+8.) CASE Statements (Classify claims as Low/High)
+sql
+Copy
+Edit
+SELECT Claim_ID, Claim_Cost,
+  CASE
+    WHEN Claim_Cost < 10000 THEN 'Low'
+    WHEN Claim_Cost BETWEEN 10000 AND 30000 THEN 'Medium'
+    ELSE 'High'
+  END AS Cost_Category
+FROM Claims;
+
+ 9.) DISTINCT + COUNT (How many unique patients and procedures)
+sql
+Copy
+Edit
+SELECT COUNT(DISTINCT Patient_ID) AS Unique_Patients,
+       COUNT(DISTINCT Procedure_Name) AS Unique_Procedures
+FROM Claims;
+
+ 10.) Window Functions (Advanced) – Running total of cost per month
+sql
+Copy
+Edit
+SELECT Claim_Date, Claim_Cost,
+       SUM(Claim_Cost) OVER (ORDER BY Claim_Date) AS Running_Total
+FROM Claims;
